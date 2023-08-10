@@ -54,7 +54,6 @@ uint64_t get_milliseconds(void)
 void get_random_bytes(uint8_t buffer[], size_t len)
 {
     int ignored __attribute__((unused));
-    int passing = 0;
 
     ignored = getentropy(buffer, len);
     if (errno != EXIT_SUCCESS)
