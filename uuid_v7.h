@@ -32,9 +32,10 @@
 
 #include <list>
 #include <string>
-                        
+
+#include <openssl/rand.h>  // RAND_bytes
+
 #include <time.h>
-#include <sys/random.h>
 
 typedef uint8_t uuid_t[UUID_T_LENGTH];
 
@@ -53,13 +54,10 @@ uint64_t get_milliseconds(void)
 
 void get_random_bytes(uint8_t buffer[], size_t len)
 {
-    int ignored __attribute__((unused));
-
-    ignored = getentropy(buffer, len);
-    if (errno != EXIT_SUCCESS)
+    if (!RAND_bytes(buffer, len))
     {
-      	  mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
-			ER_GET_ERRMSG, 0, errno, "impossible to generate a random number", "uuid_v7");
+      	mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
+		ER_GET_ERRMSG, 0, errno, "impossible to generate a random number", "uuid_v7");
     }
 }
 
