@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, 2022, Oracle and/or its affiliates. All rights reserved.
+/* Copyright (c) 2017, 2023, Oracle and/or its affiliates. All rights reserved.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License, version 2.0,
   as published by the Free Software Foundation.
@@ -35,7 +35,10 @@
 
 #include <openssl/rand.h>  // RAND_bytes
 
-#include <time.h>
+#include <ctime>
+#include <iostream>
+#include <iomanip>
+
 
 typedef uint8_t uuid_t[UUID_T_LENGTH];
 
@@ -52,12 +55,45 @@ uint64_t get_milliseconds(void)
     return ((tp.tv_sec * 1000) + (tp.tv_nsec / 1000000));
 }
 
+bool is_hex_char(char c) {
+    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+}
+
+unsigned char hex_to_byte(char c) {
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    } else if (c >= 'a' && c <= 'f') {
+        return c - 'a' + 10;
+    } else if (c >= 'A' && c <= 'F') {
+        return c - 'A' + 10;
+    }
+    mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
+           ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "Invalid hex character");
+    return 0;
+}
+
+
+std::string get_timestamp(uint64_t milliseconds) {
+    std::time_t seconds = milliseconds / 1000;
+    std::tm timeinfo;
+#ifdef _WIN32
+    localtime_s(&timeinfo, &seconds); // Use localtime_s for Windows
+#else
+    localtime_r(&seconds, &timeinfo); // Use localtime_r for Linux/Unix
+#endif
+
+    std::ostringstream oss;
+    oss << std::put_time(&timeinfo, "%Y-%m-%d %H:%M:%S") 
+	    << '.' << std::setfill('0') << std::setw(3) << milliseconds % 1000;
+    return oss.str();
+}
+
 void get_random_bytes(uint8_t buffer[], size_t len)
 {
     if (!RAND_bytes(buffer, len))
     {
       	mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
-		ER_GET_ERRMSG, 0, errno, "impossible to generate a random number", "uuid_v7");
+	  ER_GET_ERRMSG, 0, errno, "impossible to generate a random number", "uuid_v7");
     }
 }
 
@@ -120,6 +156,48 @@ std::string uuid_to_string(uuid_t uuid)
     std::string out(str);
     return out;
 }
+
+int string_to_uuid(const std::string &str, uuid_t uuid) {
+    if (str.size() != 36) {
+	mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
+                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "Invalid UUID string length");
+	return 1;
+    }
+    if (str[14] != '7') {
+	mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
+                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "This is not a UUID v7");
+	return 1;
+    }
+
+    int idx = 0;
+    for (int i = 0; i < 16; ++i) {
+        if (str[idx] == '-') {
+            ++idx;
+        }
+        if (!is_hex_char(str[idx]) || !is_hex_char(str[idx + 1])) {
+	    mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
+                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "Invalid hex character in UUID string");
+	    return 1;
+        }
+        uuid[i] = (hex_to_byte(str[idx]) << 4) | hex_to_byte(str[idx + 1]);
+        idx += 2;
+    }
+    return 0;
+}
+
+
+std::string uuid_to_ts(uuid_t uuid) {
+        std::string out;
+        uint64_t unix_ts = 0;
+
+        for (int i = 0; i < UNIX_TS_LENGTH; i++) {
+           unix_ts |= ((uint64_t)uuid[UNIX_TS_LENGTH - 1 - i]) << (8 * i);
+        }
+        out = get_timestamp(unix_ts);
+
+        return out;
+}
+
 
 extern REQUIRES_SERVICE_PLACEHOLDER(log_builtins);
 extern REQUIRES_SERVICE_PLACEHOLDER(log_builtins_string);

@@ -80,6 +80,48 @@ namespace udf_impl {
 const char *udf_init = "udf_init", *my_udf = "my_udf",
            *my_udf_clear = "my_clear", *my_udf_add = "my_udf_add";
 
+static bool uuid_v7_to_timestamp_udf_init(UDF_INIT *initid, UDF_ARGS *, char *) {
+  const char* name = "utf8mb4";
+  char *value = const_cast<char*>(name);
+  initid->ptr = const_cast<char *>(udf_init);
+  if (mysql_service_mysql_udf_metadata->result_set(
+          initid, "charset",
+          const_cast<char *>(value))) {
+    LogComponentErr(ERROR_LEVEL, ER_LOG_PRINTF_MSG, "failed to set result charset");
+    return false;
+  }
+  return 0;
+}
+
+static void uuid_v7_to_timestamp_udf_deinit(__attribute__((unused)) UDF_INIT *initid) {
+  assert(initid->ptr == udf_init || initid->ptr == my_udf);
+}
+
+// Get the timestamp from an uuid_v7
+
+const char *uuid_v7_to_timestamp_udf(UDF_INIT *, UDF_ARGS *args, char *outp,
+                          unsigned long *length, char *is_null, char *error) {
+
+    uuid_t uuidv7;
+    std::string out;
+    if (args->arg_count < 1) {
+      mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
+                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "this function requires 1 parameteter!"); 
+    } else if (args->arg_count > 1) {      
+      mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
+                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "this function requires only 1 parameteter!"); 
+    } else {
+      if (string_to_uuid(args->args[0], uuidv7)) {
+         out = uuid_to_ts(uuidv7);
+         strcpy(outp, out.c_str());
+      }
+    }
+    *error = 0;
+    *is_null = 0;
+    *length = strlen(outp);
+    return const_cast<char *>(outp);
+}
+	
 static bool uuid_v7_udf_init(UDF_INIT *initid, UDF_ARGS *, char *) {
   const char* name = "utf8mb4";
   char *value = const_cast<char*>(name);
@@ -111,7 +153,7 @@ const char *uuid_v7_udf(UDF_INIT *, UDF_ARGS *, char *outp,
     *length = strlen(outp);
     return const_cast<char *>(outp);
 }
-	
+
 
 } /* namespace udf_impl */
 
@@ -130,6 +172,14 @@ static mysql_service_status_t uuid_v7_service_init() {
                        (Udf_func_any)udf_impl::uuid_v7_udf,
                        udf_impl::uuid_v7_udf_init,
                        udf_impl::uuid_v7_udf_deinit)) {
+    delete list;
+    return 1; /* failure: one of the UDF registrations failed */
+  }
+
+  if (list->add_scalar("uuid_v7_to_timestamp", Item_result::STRING_RESULT,
+                       (Udf_func_any)udf_impl::uuid_v7_to_timestamp_udf,
+                       udf_impl::uuid_v7_to_timestamp_udf_init,
+                       udf_impl::uuid_v7_to_timestamp_udf_deinit)) {
     delete list;
     return 1; /* failure: one of the UDF registrations failed */
   }
