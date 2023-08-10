@@ -30,6 +30,7 @@ REQUIRES_SERVICE_PLACEHOLDER(log_builtins);
 REQUIRES_SERVICE_PLACEHOLDER(log_builtins_string);
 REQUIRES_SERVICE_PLACEHOLDER(udf_registration);
 REQUIRES_SERVICE_PLACEHOLDER(mysql_udf_metadata);
+REQUIRES_SERVICE_PLACEHOLDER(mysql_runtime_error);
 
 SERVICE_TYPE(log_builtins) * log_bi;
 SERVICE_TYPE(log_builtins_string) * log_bs;
@@ -108,7 +109,7 @@ const char *uuid_v7_udf(UDF_INIT *, UDF_ARGS *, char *outp,
     *is_null = 0;
 
     *length = strlen(outp);
-    return outp;
+    return const_cast<char *>(outp);
 }
 	
 
@@ -156,6 +157,7 @@ BEGIN_COMPONENT_REQUIRES(uuid_v7_service)
     REQUIRES_SERVICE(log_builtins_string),
     REQUIRES_SERVICE(mysql_udf_metadata),
     REQUIRES_SERVICE(udf_registration),
+    REQUIRES_SERVICE(mysql_runtime_error),
 END_COMPONENT_REQUIRES();
 
 /* A list of metadata to describe the Component. */

@@ -28,13 +28,13 @@
 #include <mysqld_error.h>                           /* Errors */
 #include <mysql/components/services/udf_metadata.h>
 #include <mysql/components/services/udf_registration.h>
-
-
-#include <time.h>
-#include <sys/random.h>
+#include <mysql/components/services/mysql_runtime_error_service.h>
 
 #include <list>
 #include <string>
+
+#include <iostream>
+#include <unistd.h>
 
 typedef uint8_t uuid_t[UUID_T_LENGTH];
 
@@ -54,10 +54,13 @@ uint64_t get_milliseconds(void)
 void get_random_bytes(uint8_t buffer[], size_t len)
 {
     int ignored __attribute__((unused));
+    int passing = 0;
+
     ignored = getentropy(buffer, len);
     if (errno != EXIT_SUCCESS)
     {
-        exit(EXIT_FAILURE);
+      	  mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
+			ER_GET_ERRMSG, 0, errno, "impossible to generate a random number", "uuid_v7");
     }
 }
 
@@ -125,6 +128,7 @@ extern REQUIRES_SERVICE_PLACEHOLDER(log_builtins);
 extern REQUIRES_SERVICE_PLACEHOLDER(log_builtins_string);
 extern REQUIRES_SERVICE_PLACEHOLDER(udf_registration);
 extern REQUIRES_SERVICE_PLACEHOLDER(mysql_udf_metadata);
+extern REQUIRES_SERVICE_PLACEHOLDER(mysql_runtime_error);
 
 extern SERVICE_TYPE(log_builtins) * log_bi;
 extern SERVICE_TYPE(log_builtins_string) * log_bs;
