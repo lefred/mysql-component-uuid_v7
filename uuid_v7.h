@@ -32,9 +32,9 @@
 
 #include <list>
 #include <string>
-
-#include <iostream>
-#include <unistd.h>
+                        
+#include <time.h>
+#include <sys/random.h>
 
 typedef uint8_t uuid_t[UUID_T_LENGTH];
 
