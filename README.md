@@ -193,3 +193,6 @@ EXPLAIN: {
 | 0x0189E3CF84BB766EAB94A674678379DC | lenka | 2023-08-11 11:56:15 | 0189e3cf-84bb-766e-ab94-a674678379dc |
 +------------------------------------+-------+---------------------+--------------------------------------+         
 ```
+
+The only caveat is that such a component function cannot be used
+as default value for any column.
