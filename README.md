@@ -61,7 +61,13 @@ Extending MySQL using the Component Infrastructure - Adding a UUID v7 generator 
 | Fri Aug 11 01:28:14 2023 GMT                                      |
 +-------------------------------------------------------------------+
 1 row in set (0.0007 sec) 
+```
 
+## Errors Handling
+
+The current checks performed:
+
+```
  MySQL > select uuid_v7_to_timestamp("0189e190-8e91-4d81-9f8d-d9a1edbf955a");
 ERROR: 3200 (HY000): uuid_v7_to_timestamp UDF failed; This is not a UUID v7
 
