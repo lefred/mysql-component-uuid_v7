@@ -72,7 +72,8 @@ unsigned char hex_to_byte(char c) {
     return 0;
 }
 
-
+// Return human readable format like
+// 2023-08-11 08:08:03.373
 std::string get_timestamp(uint64_t milliseconds) {
     std::time_t seconds = milliseconds / 1000;
     std::tm timeinfo;
@@ -85,6 +86,23 @@ std::string get_timestamp(uint64_t milliseconds) {
     std::ostringstream oss;
     oss << std::put_time(&timeinfo, "%Y-%m-%d %H:%M:%S") 
 	    << '.' << std::setfill('0') << std::setw(3) << milliseconds % 1000;
+    return oss.str();
+}
+
+// Return longer human readable format like
+// Fri Aug 11 08:08:03 2023 CEST
+std::string get_timestamp_long(uint64_t milliseconds) {
+    std::time_t seconds = milliseconds / 1000;
+    std::tm timeinfo;
+#ifdef _WIN32
+    localtime_s(&timeinfo, &seconds); // Use localtime_s for Windows
+#else
+    localtime_r(&seconds, &timeinfo); // Use localtime_r for Linux/Unix
+#endif
+
+    std::ostringstream oss;
+    oss << std::put_time(&timeinfo, "%c %Z");
+
     return oss.str();
 }
 
@@ -185,6 +203,15 @@ int string_to_uuid(const std::string &str, uuid_t uuid) {
     return 0;
 }
 
+uint64_t uuid_to_unixts(uuid_t uuid) {
+        uint64_t unix_ts = 0;
+
+        for (int i = 0; i < UNIX_TS_LENGTH; i++) {
+           unix_ts |= ((uint64_t)uuid[UNIX_TS_LENGTH - 1 - i]) << (8 * i);
+        }
+
+        return unix_ts;
+}
 
 std::string uuid_to_ts(uuid_t uuid) {
         std::string out;
@@ -194,6 +221,18 @@ std::string uuid_to_ts(uuid_t uuid) {
            unix_ts |= ((uint64_t)uuid[UNIX_TS_LENGTH - 1 - i]) << (8 * i);
         }
         out = get_timestamp(unix_ts);
+
+        return out;
+}
+
+std::string uuid_to_ts_long(uuid_t uuid) {
+        std::string out;
+        uint64_t unix_ts = 0;
+
+        for (int i = 0; i < UNIX_TS_LENGTH; i++) {
+           unix_ts |= ((uint64_t)uuid[UNIX_TS_LENGTH - 1 - i]) << (8 * i);
+        }
+        out = get_timestamp_long(unix_ts);
 
         return out;
 }

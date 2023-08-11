@@ -30,6 +30,38 @@ Extending MySQL using the Component Infrastructure - Adding a UUID v7 generator 
 +--------------------------------------------------------------+
 1 row in set (0.0005 sec)
 
+ MySQL > select uuid_v7_to_unixtime("0189e190-8e91-7d81-9f8d-d9a1edbf955a");
++-------------------------------------------------------------+
+| uuid_v7_to_unixtime("0189e190-8e91-7d81-9f8d-d9a1edbf955a") |
++-------------------------------------------------------------+
+|                                                  1691706494 |
++-------------------------------------------------------------+
+1 row in set (0.0006 sec)
+
+ MySQL > select from_unixtime(uuid_v7_to_unixtime("0189e190-8e91-7d81-9f8d-d9a1edbf955a"));
++----------------------------------------------------------------------------+
+| from_unixtime(uuid_v7_to_unixtime("0189e190-8e91-7d81-9f8d-d9a1edbf955a")) |
++----------------------------------------------------------------------------+
+| 2023-08-11 01:28:14                                                        |
++----------------------------------------------------------------------------+
+1 row in set (0.0006 sec)
+ 
+ MySQL > select from_unixtime(uuid_v7_to_unixtime(uuid_v7()));
++-----------------------------------------------+
+| from_unixtime(uuid_v7_to_unixtime(uuid_v7())) |
++-----------------------------------------------+
+| 2023-08-11 11:33:22                           |
++-----------------------------------------------+
+1 row in set (0.0005 sec)
+ 
+ MySQL > select uuid_v7_to_timestamp_long("0189e190-8e91-7d81-9f8d-d9a1edbf955a");
++-------------------------------------------------------------------+
+| uuid_v7_to_timestamp_long("0189e190-8e91-7d81-9f8d-d9a1edbf955a") |
++-------------------------------------------------------------------+
+| Fri Aug 11 01:28:14 2023 GMT                                      |
++-------------------------------------------------------------------+
+1 row in set (0.0007 sec) 
+
  MySQL > select uuid_v7_to_timestamp("0189e190-8e91-4d81-9f8d-d9a1edbf955a");
 ERROR: 3200 (HY000): uuid_v7_to_timestamp UDF failed; This is not a UUID v7
 
@@ -40,10 +72,10 @@ ERROR: 3200 (HY000): uuid_v7_to_timestamp UDF failed; Invalid UUID string length
 ERROR: 3200 (HY000): uuid_v7_to_timestamp UDF failed; Invalid UUID string length
 
  MySQL > select uuid_v7_to_timestamp("0189e190-8e91-4d81-9f8d-d9a1edbf955a1",1);
-ERROR: 3200 (HY000): uuid_v7_to_timestamp UDF failed; this function requires only 1 parameteter!
+ERROR: 3200 (HY000): uuid_v7_to_timestamp UDF failed; this function requires only 1 parameteter
 
  MySQL > select uuid_v7_to_timestamp();
-ERROR: 3200 (HY000): uuid_v7_to_timestamp UDF failed; this function requires 1 parameteter!
+ERROR: 3200 (HY000): uuid_v7_to_timestamp UDF failed; this function requires 1 parameteter
 ```
 
 
