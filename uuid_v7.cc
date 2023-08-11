@@ -106,10 +106,12 @@ const char *uuid_v7_to_timestamp_udf(UDF_INIT *, UDF_ARGS *args, char *outp,
     std::string out;
     if (args->arg_count < 1) {
       mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
-                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "this function requires 1 parameteter!"); 
+                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", 
+                "this function requires 1 parameteter"); 
     } else if (args->arg_count > 1) {      
       mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
-                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "this function requires only 1 parameteter!"); 
+                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", 
+                "this function requires only 1 parameteter"); 
     } else {
       if (!string_to_uuid(args->args[0], uuidv7)) {
          out = uuid_to_ts(uuidv7);
@@ -147,10 +149,12 @@ const char *uuid_v7_to_timestamp_long_udf(UDF_INIT *, UDF_ARGS *args, char *outp
     std::string out;
     if (args->arg_count < 1) {
       mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
-                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "this function requires 1 parameteter!"); 
+                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp",
+                "this function requires 1 parameteter"); 
     } else if (args->arg_count > 1) {      
       mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
-                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "this function requires only 1 parameteter!"); 
+                ER_UDF_ERROR, 0, "uuid_v7_to_timestamp",
+                "this function requires only 1 parameteter"); 
     } else {
       if (!string_to_uuid(args->args[0], uuidv7)) {
          out = uuid_to_ts_long(uuidv7);
