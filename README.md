@@ -78,7 +78,7 @@ ERROR: 3200 (HY000): uuid_v7_to_timestamp UDF failed; this function requires onl
 ERROR: 3200 (HY000): uuid_v7_to_timestamp UDF failed; this function requires 1 parameteter
 ```
 
-## How to use a UUID v7 as primary key on a table
+## How to use a UUID v7 as primary key for a table
 
 ```
  MySQL > create table t1 (uuid varbinary(16) primary key, 
@@ -181,8 +181,8 @@ EXPLAIN: {
   }
 }
 
- MySQL > ALTER table t1 add column uuid_text char(36) 
-         generated always as (BIN_TO_UUID(uuid)) VIRTUAL;
+ MySQL > alter table t1 add column uuid_text char(36) 
+         generated always as (BIN_TO_UUID(uuid)) virtual;
 
  MySQL > select * from t1 ;
 +------------------------------------+-------+---------------------+--------------------------------------+
