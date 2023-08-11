@@ -111,7 +111,7 @@ const char *uuid_v7_to_timestamp_udf(UDF_INIT *, UDF_ARGS *args, char *outp,
       mysql_error_service_emit_printf(mysql_service_mysql_runtime_error,
                 ER_UDF_ERROR, 0, "uuid_v7_to_timestamp", "this function requires only 1 parameteter!"); 
     } else {
-      if (string_to_uuid(args->args[0], uuidv7)) {
+      if (!string_to_uuid(args->args[0], uuidv7)) {
          out = uuid_to_ts(uuidv7);
          strcpy(outp, out.c_str());
       }
