@@ -24,7 +24,8 @@
 #define NO_SIGNATURE_CHANGE 0
 #define SIGNATURE_CHANGE 1
 
-#include <components/uuid_v7/uuid_v7.h>
+// #include <components/uuid_v7/uuid_v7.h>
+#include "components/mysql-component-uuid_v7/uuid_v7.h"
 
 REQUIRES_SERVICE_PLACEHOLDER(log_builtins);
 REQUIRES_SERVICE_PLACEHOLDER(log_builtins_string);

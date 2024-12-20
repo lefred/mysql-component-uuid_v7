@@ -1,3 +1,25 @@
+# 附加上编译安装步骤
+
+#### 1、进入到源码目录
+```shell> cd /root/soft/mysql-8.0.39/components/```
+
+#### 2、git拉取mysql-component-uuid_v7
+```shell> git clone https://github.com/hcymysql/mysql-component-uuid_v7.git```
+
+#### 3、编译
+```
+shell> cd /root/soft/mysql-8.0.39
+shell> mkdir build
+shell> cd build
+shell> cmake .. -DWITH_COMPONENTS=uuid_v7 -DWITH_BOOST=/root/soft/mysql-8.0.39/boost/boost_1_77_0/
+shell> make -j$(nproc)
+```
+
+注：会在/root/soft/mysql-8.0.39/build/plugin_output_directory/目录下生成component_uuid_v7.so，
+将其拷贝至/usr/local/mysql/lib/plugin/目录下，然后按照下面的步骤进行插件安装。
+
+### 如自己不想编译，可以直接下载编译好的component_uuid_v7.so文件（Centos 7系统）
+
 # mysql-component-uuid_v7
 
 Extending MySQL using the Component Infrastructure - Adding a UUID v7 generator user function.
