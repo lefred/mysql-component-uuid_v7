@@ -1,0 +1,32 @@
+name: Build and package UUID v7 component
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: lefred/mysql-component-ci/.github/workflows/build-component.yml@main
+    with:
+      component_name: uuid_v7
+      component_directory: uuid_v7
+      build_target: component_uuid_v7
+      component_library: component_uuid_v7.so
+
+      sdk_image: quay.io/lefred14/mariadb-plugin-build
+      mariadb_versions: |
+          9.7.2 
+          26.7.0
+
+      run_tests: false
+~
+
