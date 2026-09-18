@@ -23,7 +23,7 @@ jobs:
       component_library: component_uuid_v7.so
 
       sdk_image: quay.io/lefred14/mariadb-plugin-build
-      mariadb_versions: |
+      mysql_versions: |
           9.7.2 
           26.7.0
 
